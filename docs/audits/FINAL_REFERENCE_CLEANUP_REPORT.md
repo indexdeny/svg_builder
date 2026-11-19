@@ -116,6 +116,9 @@ COMP ID, каноническим путям растров и существу�
 
 Основной PR: [https://github.com/indexdeny/svg_builder/pull/1](https://github.com/indexdeny/svg_builder/pull/1); интегрирован.
 
+Служебные ссылки и окончательное подтверждение публикации:
+[PR №2](https://github.com/indexdeny/svg_builder/pull/2).
+
 SHA основного релиза после интеграции: `305affd05cd7e1bf0853ab75e7bc734226245998`.
 
 GitHub default branch: `master`; visibility: `public`.
