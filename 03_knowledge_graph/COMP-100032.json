@@ -60,9 +60,9 @@
   "passport_id": "COMP-100032",
   "automation_meta": {
     "deconstruction_status": "Verified",
-    "export_path": "/05_output_svg/res_comp_100032.svg",
-    "entity_id": "logo_primitive_100032",
-    "source_ref": "SRC-100052"
+    "export_path": "05_output_svg/svg_masson_logo_01.svg",
+    "entity_id": "COMP-100032",
+    "source_ref": "01_input_raster/high_contrast/masson_logo_01.png"
   },
   "source_filename": "masson_logo_01.png",
   "output_filename": "svg_masson_logo_01.svg",

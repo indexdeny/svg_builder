@@ -77,7 +77,7 @@ viewBox, режиму, SSIM, eligibility и совпадению с graph mirror
 
 ## Проверки
 
-- 18 regression tests whitelist/containment: PASS.
+- 19 regression tests whitelist/containment: PASS.
 - 17 SVG contract / STANDARD_VECTOR assertions: PASS.
 - 14 3MF geometry assertions: PASS.
 - Полная генерация владельца: 56 raw → 56 schema-valid records/passports → 56 SVG PASSED.
@@ -87,7 +87,7 @@ viewBox, режиму, SSIM, eligibility и совпадению с graph mirror
 - Удаление binary обнаруживается аудитом; SKETCH_VECTOR CLI проверен на fixture.
 - Зависимости установлены в отдельное чистое venv из requirements.txt.
 - Исправлена обнаруженная в чистом venv обязательная зависимость lxml для 3MF.
-- Чистый clone проверен с новым venv: 18 unittest, 17 SVG assertions,
+- Чистый clone проверен с новым venv: 19 unittest, 17 SVG assertions,
   14 geometry assertions, dataset audit и полный smoke прошли; Git status чистый.
 - Отдельный clone опубликованного master с GitHub проверен повторно:
   56 исходников, 56 release SVG, 18 моделей, 18 sidecars, 66 диагностик;
@@ -108,11 +108,15 @@ viewBox, режиму, SSIM, eligibility и совпадению с graph mirror
 они не пополняют набор владельца. `.gitattributes` сохраняет байты SVG и
 их SHA-256 при checkout на разных платформах.
 
+Служебные `entity_id`, `source_ref` и `export_path` приведены к фактическим
+COMP ID, каноническим путям растров и существующим SVG. Проверка этих полей
+добавлена в dataset audit; паспорта синхронизируются при компиляции.
+
 ## Публикация
 
 Основной PR: [https://github.com/indexdeny/svg_builder/pull/1](https://github.com/indexdeny/svg_builder/pull/1); интегрирован.
 
-Проверенный master после интеграции: `305affd05cd7e1bf0853ab75e7bc734226245998`.
+SHA основного релиза после интеграции: `305affd05cd7e1bf0853ab75e7bc734226245998`.
 
 GitHub default branch: `master`; visibility: `public`.
 
@@ -133,4 +137,3 @@ Topics: 3mf, computational-geometry, image-processing, json-schema, python, qual
 печать не выполнялась. Право публикации подтверждено владельцем, не внешней
 юридической экспертизой. История Git не переписывалась; старая ветка dev
 и исторические коммиты могут содержать исключённые материалы.
-

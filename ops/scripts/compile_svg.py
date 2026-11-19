@@ -350,6 +350,7 @@ def compile_object_svg_mono(passport_id, design_tokens, output_name=None):
                 json.dump(data, f, indent=2, ensure_ascii=False)
         except Exception:
             pass
+        save_compile_status(passport_id, 'rejected_low_detail', '')
         log_qa_failure(passport_id, [reason])
         log_agent_trace(passport_id, "Failed", (time.time() - start_time) * 1000,
                         reason, agent_id="A08")
@@ -462,24 +463,14 @@ def compile_object_svg_mono(passport_id, design_tokens, output_name=None):
         os.makedirs(os.path.dirname(quarantine_path), exist_ok=True)
         with open(quarantine_path, 'w', encoding='utf-8') as f:
             f.write(svg_out)
-        with open(index_path, encoding='utf-8') as f:
-            data = json.load(f)
-        data['compile_status'] = 'QUARANTINED'
-        data.pop('mesh_artifact_metadata', None)
-        with open(index_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
+        save_compile_status(passport_id, 'QUARANTINED', quarantine_path)
         print(f"[FAIL] {passport_id} ({render_mode}) -> quarantine/{output_name}: {errors}")
         return False
 
     final_path = f"05_output_svg/{output_name}"
     with open(final_path, 'w', encoding='utf-8') as f:
         f.write(svg_out)
-    with open(index_path, encoding='utf-8') as f:
-        data = json.load(f)
-    data['compile_status'] = 'PASSED'
-    data.pop('mesh_artifact_metadata', None)
-    with open(index_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    save_compile_status(passport_id, 'PASSED', final_path)
     log_agent_trace(passport_id, "Success", duration_ms, agent_id="A08", metrics=metrics)
     print(f"[OK] {passport_id} [{input_type}/{render_mode}/{detail}] "
           f"3mf={meta['3mf_eligible']}: SSIM={result['ssim_ref']:.4f} "
@@ -671,6 +662,20 @@ def annotate_passport(passport_id, source_file, output_name, artifact_metadata=N
             json.dump(d, f, indent=2, ensure_ascii=False)
     except Exception as e:
         print(f"[WARN] Could not annotate passport {passport_id}: {e}")
+
+
+def save_compile_status(passport_id, status, export_path):
+    from validate import make_automation_meta, generate_markdown_passport
+    path = f'03_knowledge_graph/{passport_id}.json'
+    with open(path, encoding='utf-8') as stream:
+        data = json.load(stream)
+    data['compile_status'] = status
+    data['automation_meta'] = make_automation_meta(passport_id, data['source_file'], export_path)
+    data.pop('mesh_artifact_metadata', None)
+    with open(path, 'w', encoding='utf-8') as stream:
+        json.dump(data, stream, indent=2, ensure_ascii=False)
+    with open(f'04_passports/{passport_id}.md', 'w', encoding='utf-8') as stream:
+        stream.write(generate_markdown_passport(data))
 
 def compile_object_svg_hifi(passport_id, design_tokens):
     """A06 HiFi path (TZ v3.0): deterministic vectorization with perceptual QA."""

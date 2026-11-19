@@ -43,6 +43,15 @@ def audit(refresh=False):
                 raise ValueError('duplicate/mismatched COMP ID')
             if data['source_file'] in by_source:
                 raise ValueError('duplicate source COMP record')
+            automation = data.get('automation_meta', {})
+            if automation.get('entity_id') != cid or automation.get('source_ref') != data['source_file']:
+                raise ValueError('automation references must identify the real COMP and raster')
+            export_path = automation.get('export_path', '')
+            if data.get('compile_status') == 'PASSED':
+                if export_path != '05_output_svg/' + data.get('output_filename', '') or not (ROOT / export_path).is_file():
+                    raise ValueError('automation export_path does not resolve to the released SVG')
+            elif export_path and not (ROOT / export_path).is_file():
+                raise ValueError('automation export_path points to an absent artifact')
             records[cid] = data
             by_source[data['source_file']] = cid
             passport = ROOT / '04_passports' / (cid + '.md')
@@ -51,6 +60,8 @@ def audit(refresh=False):
             text = passport.read_text(encoding='utf-8')
             if data['source_file'] not in text or data['source_sha256'] not in text:
                 raise ValueError('passport source identity mismatch')
+            if export_path and export_path not in text:
+                raise ValueError('passport export path differs from graph')
         except Exception as error:
             fail(f'graph/{path.name}: {error}')
 

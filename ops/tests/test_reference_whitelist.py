@@ -183,6 +183,16 @@ class WhitelistTests(unittest.TestCase):
         self.assertEqual(self.a.read_bytes(), original)
         self.assertIn('Output', result.stderr)
 
+    def test_automation_references_identify_actual_source_and_record(self):
+        import validate
+        self.assertTrue(callable(getattr(validate, 'make_automation_meta', None)))
+        source = self.a.relative_to(self.root).as_posix()
+        meta = validate.make_automation_meta('COMP-100001', source, '05_output_svg/svg_same.svg')
+        self.assertEqual(meta['entity_id'], 'COMP-100001')
+        self.assertEqual(meta['source_ref'], source)
+        self.assertEqual(meta['export_path'], '05_output_svg/svg_same.svg')
+        self.assertEqual(validate.make_automation_meta('COMP-100001', source)['export_path'], '')
+
 
 if __name__ == '__main__':
     unittest.main()

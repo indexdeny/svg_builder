@@ -55,9 +55,9 @@
   "passport_id": "COMP-100006",
   "automation_meta": {
     "deconstruction_status": "Verified",
-    "export_path": "/05_output_svg/res_comp_100006.svg",
-    "entity_id": "logo_primitive_100006",
-    "source_ref": "SRC-100026"
+    "export_path": "05_output_svg/svg_soloma_02.svg",
+    "entity_id": "COMP-100006",
+    "source_ref": "01_input_raster/complex_gradients/soloma_02.jpg"
   },
   "source_filename": "soloma_02.jpg",
   "output_filename": "svg_soloma_02.svg",

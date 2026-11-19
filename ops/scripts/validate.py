@@ -77,6 +77,12 @@ def log_validation_error(passport_id, file_name, errors):
     with open(error_path, 'a', encoding='utf-8') as f:
         f.write(json.dumps(log_entry, ensure_ascii=False) + '\n')
 
+
+def make_automation_meta(passport_id, source_file, export_path=''):
+    """Use real record/source identities; do not invent unresolved SRC nodes."""
+    return {'deconstruction_status': 'Verified', 'export_path': export_path,
+            'entity_id': passport_id, 'source_ref': source_file}
+
 def generate_markdown_passport(data):
     md = f"# ТЕХНИЧЕСКИЙ ПАСПОРТ ОБЪЕКТА: {data['passport_id']}\n\n"
     md += "## 1. МЕТАДАННЫЕ ИСХОДНИКА\n"
@@ -139,14 +145,22 @@ def generate_markdown_passport(data):
         if 'vtracer_params' in layer:
             vp = layer['vtracer_params']
             engine_str += f" (`corner_threshold={int(vp.get('corner_threshold', 60))}`, `length_threshold={int(vp.get('length_threshold', 4))}`)"
-        md += f"- **Целевой движок:** {engine_str}\n\n"
+        md += f"- **Подсказка старой классификации слоя:** {engine_str}\n\n"
+
+    artifact = data.get('artifact_metadata')
+    if artifact:
+        visual = artifact['gate_results']['visual']
+        md += '## 2A. ФАКТИЧЕСКИЙ РЕЗУЛЬТАТ SVG\n'
+        md += f"- **Runtime:** {artifact['engine']} / {artifact['render_mode']}\n"
+        md += f"- **SSIM маски:** {visual['value']} / порог {visual['threshold']}\n"
+        md += f"- **Статус:** {data.get('compile_status', 'PENDING')}\n\n"
         
     md += "## 3. СЛУЖЕБНЫЕ МЕТКИ АВТОМАТИЗАЦИИ\n"
     meta = data.get('automation_meta', {})
     status_map = {"Pending": "Ожидает", "InProgress": "В процессе", "Verified": "Верифицировано", "Failed": "Ошибка"}
     status_ru = status_map.get(meta.get('deconstruction_status', 'Verified'), 'Верифицировано')
     md += f"- **Статус деконструкции:** {status_ru}\n"
-    md += f"- **Целевой путь экспорта:** {meta.get('export_path', '')}\n"
+    md += f"- **Фактический путь экспорта:** {meta.get('export_path') or 'ещё не сформирован'}\n"
     md += f"- **Ссылки на граф:** entity_id: {meta.get('entity_id', '')}, source_ref: {meta.get('source_ref', '')}\n"
     
     return md
@@ -226,13 +240,7 @@ def main():
             raw_data['passport_id'] = passport_id
             
             # Setup automation_meta
-            comp_num = passport_id.split('-')[1]
-            raw_data['automation_meta'] = {
-                "deconstruction_status": "Verified",
-                "export_path": f"/05_output_svg/res_comp_{comp_num}.svg",
-                "entity_id": f"logo_primitive_{comp_num}",
-                "source_ref": f"SRC-{int(comp_num) + 20:04d}"
-            }
+            raw_data['automation_meta'] = make_automation_meta(passport_id, source_file)
             
             # 3. Validate against JSON schema
             validator = jsonschema.Draft7Validator(schema)
