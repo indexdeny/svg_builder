@@ -55,9 +55,9 @@
   "passport_id": "COMP-100041",
   "automation_meta": {
     "deconstruction_status": "Verified",
-    "export_path": "/05_output_svg/res_comp_100041.svg",
-    "entity_id": "logo_primitive_100041",
-    "source_ref": "SRC-100061"
+    "export_path": "05_output_svg/svg_soloma_01.svg",
+    "entity_id": "COMP-100041",
+    "source_ref": "01_input_raster/complex_gradients/soloma_01.jpg"
   },
   "source_filename": "soloma_01.jpg",
   "output_filename": "svg_soloma_01.svg",

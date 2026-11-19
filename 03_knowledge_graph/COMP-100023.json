@@ -55,9 +55,9 @@
   "passport_id": "COMP-100023",
   "automation_meta": {
     "deconstruction_status": "Verified",
-    "export_path": "/05_output_svg/res_comp_100023.svg",
-    "entity_id": "logo_primitive_100023",
-    "source_ref": "SRC-100043"
+    "export_path": "05_output_svg/svg_skull_01.svg",
+    "entity_id": "COMP-100023",
+    "source_ref": "01_input_raster/complex_gradients/skull_01.jpg"
   },
   "source_filename": "skull_01.jpg",
   "output_filename": "svg_skull_01.svg",

@@ -55,9 +55,9 @@
   "passport_id": "COMP-100024",
   "automation_meta": {
     "deconstruction_status": "Verified",
-    "export_path": "/05_output_svg/res_comp_100024.svg",
-    "entity_id": "logo_primitive_100024",
-    "source_ref": "SRC-100044"
+    "export_path": "05_output_svg/svg_phone_075.svg",
+    "entity_id": "COMP-100024",
+    "source_ref": "01_input_raster/complex_gradients/phone_075.jpg"
   },
   "source_filename": "phone_075.jpg",
   "output_filename": "svg_phone_075.svg",

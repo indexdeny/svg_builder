@@ -55,9 +55,9 @@
   "passport_id": "COMP-100025",
   "automation_meta": {
     "deconstruction_status": "Verified",
-    "export_path": "/05_output_svg/res_comp_100025.svg",
-    "entity_id": "logo_primitive_100025",
-    "source_ref": "SRC-100045"
+    "export_path": "05_output_svg/svg_kolia_01.svg",
+    "entity_id": "COMP-100025",
+    "source_ref": "01_input_raster/complex_gradients/kolia_01.jpg"
   },
   "source_filename": "kolia_01.jpg",
   "output_filename": "svg_kolia_01.svg",

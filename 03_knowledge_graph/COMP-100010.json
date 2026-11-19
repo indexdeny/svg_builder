@@ -55,9 +55,9 @@
   "passport_id": "COMP-100010",
   "automation_meta": {
     "deconstruction_status": "Verified",
-    "export_path": "/05_output_svg/res_comp_100010.svg",
-    "entity_id": "logo_primitive_100010",
-    "source_ref": "SRC-100030"
+    "export_path": "05_output_svg/svg_full_name_ym_proskin.svg",
+    "entity_id": "COMP-100010",
+    "source_ref": "01_input_raster/complex_gradients/full_name_ym_proskin.png"
   },
   "source_filename": "full_name_ym_proskin.png",
   "output_filename": "svg_full_name_ym_proskin.svg",
