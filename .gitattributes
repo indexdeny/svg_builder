@@ -1,0 +1,7 @@
+# Preserve SHA-256 identities of standalone assets across checkout platforms.
+*.svg -text whitespace=cr-at-eol
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.3mf binary

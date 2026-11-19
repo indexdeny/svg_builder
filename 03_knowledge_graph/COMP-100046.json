@@ -1,0 +1,155 @@
+{
+  "source_file": "01_input_raster/complex_gradients/kolia_01_original.jpg",
+  "resolution": {
+    "width_px": 1027,
+    "height_px": 899
+  },
+  "complexity": "High",
+  "provenance": "Owner whitelist; classified from unchanged source bytes",
+  "layers": [
+    {
+      "layer_index": 1,
+      "geometry_type": "BoundingRect",
+      "engine": "StarVector",
+      "color_token": "--white",
+      "bounding_box": [
+        0.0,
+        0.0,
+        1027.0,
+        899.0
+      ]
+    },
+    {
+      "layer_index": 2,
+      "geometry_type": "CompoundPath",
+      "engine": "OpenCV+StarVector",
+      "color_token": "--muted",
+      "anchor_points_limit": 45,
+      "bounding_box": [
+        0.0,
+        0.0,
+        1027.0,
+        899.0
+      ]
+    }
+  ],
+  "metrics": {
+    "unique_colors": 81,
+    "has_gradient": true,
+    "canny_score": 0.9919990354965742,
+    "snr_db": 2.768728040303891
+  },
+  "input_type": "LOGO",
+  "render_mode": "STANDARD_VECTOR",
+  "vector_detail_level": "ULTRA",
+  "is_tonal": false,
+  "source_width": 1027,
+  "source_height": 899,
+  "aspect_ratio": "1027:899",
+  "target_canvas": {
+    "width": 1024,
+    "height": 896
+  },
+  "preserve_aspect_ratio": true,
+  "source_sha256": "d9306e6f923e8a30439b244f04fba16646e5ed2c0acf96a011fbb843daabf318",
+  "passport_id": "COMP-100046",
+  "automation_meta": {
+    "deconstruction_status": "Verified",
+    "export_path": "/05_output_svg/res_comp_100046.svg",
+    "entity_id": "logo_primitive_100046",
+    "source_ref": "SRC-100066"
+  },
+  "source_filename": "kolia_01_original.jpg",
+  "output_filename": "svg_kolia_01_original.svg",
+  "artifact_metadata": {
+    "schema": "svg_artifact_v1",
+    "comp_id": "COMP-100046",
+    "spec_version": "3.5",
+    "engine": "deterministic_vtracer",
+    "render_mode": "STANDARD_VECTOR",
+    "fallback_from": null,
+    "source_filename": "kolia_01_original.jpg",
+    "output_filename": "svg_kolia_01_original.svg",
+    "gate_results": {
+      "visual": {
+        "axis": "ssim",
+        "value": 0.9651,
+        "threshold": 0.93,
+        "passed": true
+      },
+      "color": {
+        "axis": "monochrome",
+        "passed": true,
+        "violations": []
+      },
+      "topological": {
+        "axis": "closed_paths_no_raster",
+        "passed": true,
+        "violations": []
+      }
+    },
+    "3mf_eligible": true,
+    "viewbox": "0 0 1027 899",
+    "units": "px",
+    "px_to_mm": null,
+    "source_relative_path": "01_input_raster/complex_gradients/kolia_01_original.jpg",
+    "source_sha256": "d9306e6f923e8a30439b244f04fba16646e5ed2c0acf96a011fbb843daabf318"
+  },
+  "compile_status": "PASSED",
+  "mesh_artifact_metadata": {
+    "cutout": {
+      "schema": "mesh_artifact_v1",
+      "comp_id": "COMP-100046",
+      "source_svg_filename": "svg_kolia_01_original.svg",
+      "spec_version": "3.5",
+      "px_to_mm": 0.486855,
+      "extrusion_height_mm": 4.0,
+      "polarity": "cutout",
+      "base_plate": false,
+      "volume_mm3": 856826.534,
+      "bbox_mm": [
+        500.0,
+        437.683,
+        4.0
+      ],
+      "watertight": true,
+      "winding_consistent": true,
+      "max_printer_bounds_mm": [
+        550.0,
+        450.0,
+        450.0
+      ],
+      "within_bounds": true,
+      "source_relative_path": "01_input_raster/complex_gradients/kolia_01_original.jpg",
+      "source_sha256": "d9306e6f923e8a30439b244f04fba16646e5ed2c0acf96a011fbb843daabf318",
+      "source_svg_sha256": "7490b46afdb3788be4316d6d7750290312b34432a03529752c14bf7c4c9c3dca"
+    },
+    "raised": {
+      "schema": "mesh_artifact_v1",
+      "comp_id": "COMP-100046",
+      "source_svg_filename": "svg_kolia_01_original.svg",
+      "spec_version": "3.5",
+      "px_to_mm": 0.486855,
+      "extrusion_height_mm": 4.0,
+      "polarity": "raised",
+      "base_plate": true,
+      "volume_mm3": 152532.931,
+      "bbox_mm": [
+        500.0,
+        437.683,
+        4.6
+      ],
+      "watertight": true,
+      "winding_consistent": true,
+      "max_printer_bounds_mm": [
+        550.0,
+        450.0,
+        450.0
+      ],
+      "within_bounds": true,
+      "source_relative_path": "01_input_raster/complex_gradients/kolia_01_original.jpg",
+      "source_sha256": "d9306e6f923e8a30439b244f04fba16646e5ed2c0acf96a011fbb843daabf318",
+      "source_svg_sha256": "7490b46afdb3788be4316d6d7750290312b34432a03529752c14bf7c4c9c3dca"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "schema": "mesh_artifact_v1",
-  "comp_id": "COMP-148",
+  "comp_id": "COMP-100050",
   "source_svg_filename": "svg_logo_ym_proskin_003.svg",
   "spec_version": "3.5",
   "px_to_mm": 0.290698,
@@ -20,5 +20,8 @@
     450.0,
     450.0
   ],
-  "within_bounds": true
+  "within_bounds": true,
+  "source_relative_path": "01_input_raster/complex_gradients/logo_ym_proskin_003.png",
+  "source_sha256": "4c072f7cce8243d80cf964ff404dfd19a2aa80f2fbbb18a738fef7ad5c26e922",
+  "source_svg_sha256": "23d98161f93bfa871fb2d52810a6e3393f8e78aab1d6b2a264e47605d7efc02e"
 }

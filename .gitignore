@@ -41,10 +41,25 @@ input/**/*.webp
 01_input_raster/**/*.JPG
 01_input_raster/**/*.webp
 
+# Owner-authorized public dataset: exactly the two canonical source folders.
+!01_input_raster/complex_gradients/**/*.png
+!01_input_raster/complex_gradients/**/*.jpg
+!01_input_raster/complex_gradients/**/*.jpeg
+!01_input_raster/complex_gradients/**/*.webp
+!01_input_raster/high_contrast/**/*.png
+!01_input_raster/high_contrast/**/*.jpg
+!01_input_raster/high_contrast/**/*.jpeg
+!01_input_raster/high_contrast/**/*.webp
+
 # QA preview / scratch renders
 ops/qa_previews/
 
 # 3MF binaries (regenerable from SVG; sidecar .json metadata stays tracked)
 07_output_3mf/*.3mf
 07_output_3mf/staging/
-07_output_3mf/quarantine/
+07_output_3mf/quarantine/*
+!07_output_3mf/quarantine/.gitkeep
+!07_output_3mf/quarantine/*.failure.json
+
+# Released, provenance-verified meshes are published with their JSON sidecars.
+!07_output_3mf/*.3mf

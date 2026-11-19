@@ -4,6 +4,8 @@ import json
 import xml.etree.ElementTree as ET
 import re
 import vtracer
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import reference_whitelist as whitelist
 
 def get_anchor_points_count(svg_path):
     try:
@@ -26,18 +28,12 @@ def get_anchor_points_count(svg_path):
         print(f"Error parsing SVG to count anchor points: {e}")
         return 0
 
-def find_image_path(source_file):
-    search_dirs = [
-        '01_input_raster/high_contrast',
-        '01_input_raster/complex_gradients'
-    ]
-    for d in search_dirs:
-        p = os.path.join(d, source_file)
-        if os.path.exists(p):
-            return p
-    return None
+def find_image_path(source_file, source_sha256=None):
+    return str(whitelist.verify_record({'source_file': source_file,
+                                      'source_sha256': source_sha256}))
 
 def process_vtracer_layer(passport_id, layer_index, output_path):
+    output_path = str(whitelist.output_file(output_path, suffix='.svg'))
     index_path = f"03_knowledge_graph/{passport_id}.json"
     if not os.path.exists(index_path):
         raise FileNotFoundError(f"Passport index not found: {index_path}")
@@ -46,7 +42,7 @@ def process_vtracer_layer(passport_id, layer_index, output_path):
         data = json.load(f)
         
     source_file = data['source_file']
-    image_path = find_image_path(source_file)
+    image_path = find_image_path(source_file, data.get('source_sha256'))
     if not image_path:
         raise FileNotFoundError(f"Source image not found for: {source_file}")
         

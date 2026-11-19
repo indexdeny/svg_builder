@@ -1,0 +1,99 @@
+{
+  "source_file": "01_input_raster/complex_gradients/soloma_01.jpg",
+  "resolution": {
+    "width_px": 640,
+    "height_px": 640
+  },
+  "complexity": "High",
+  "provenance": "Owner whitelist; classified from unchanged source bytes",
+  "layers": [
+    {
+      "layer_index": 1,
+      "geometry_type": "BoundingRect",
+      "engine": "StarVector",
+      "color_token": "--white",
+      "bounding_box": [
+        0.0,
+        0.0,
+        640.0,
+        640.0
+      ]
+    },
+    {
+      "layer_index": 2,
+      "geometry_type": "CompoundPath",
+      "engine": "OpenCV+StarVector",
+      "color_token": "--dark",
+      "anchor_points_limit": 45,
+      "bounding_box": [
+        0.0,
+        0.0,
+        640.0,
+        640.0
+      ]
+    }
+  ],
+  "metrics": {
+    "unique_colors": 17,
+    "has_gradient": false,
+    "canny_score": 3.7147768749862604,
+    "snr_db": 8.861852239601916
+  },
+  "input_type": "LOGO",
+  "render_mode": "STANDARD_VECTOR",
+  "vector_detail_level": "ULTRA",
+  "is_tonal": false,
+  "source_width": 640,
+  "source_height": 640,
+  "aspect_ratio": "1:1",
+  "target_canvas": {
+    "width": 1024,
+    "height": 1024
+  },
+  "preserve_aspect_ratio": true,
+  "source_sha256": "80fbeda40538afe69f61311bb004aa5cfaabcba072380a38990a23aaf7628f96",
+  "passport_id": "COMP-100041",
+  "automation_meta": {
+    "deconstruction_status": "Verified",
+    "export_path": "/05_output_svg/res_comp_100041.svg",
+    "entity_id": "logo_primitive_100041",
+    "source_ref": "SRC-100061"
+  },
+  "source_filename": "soloma_01.jpg",
+  "output_filename": "svg_soloma_01.svg",
+  "artifact_metadata": {
+    "schema": "svg_artifact_v1",
+    "comp_id": "COMP-100041",
+    "spec_version": "3.5",
+    "engine": "deterministic_vtracer",
+    "render_mode": "STANDARD_VECTOR",
+    "fallback_from": null,
+    "source_filename": "soloma_01.jpg",
+    "output_filename": "svg_soloma_01.svg",
+    "gate_results": {
+      "visual": {
+        "axis": "ssim",
+        "value": 0.9809,
+        "threshold": 0.93,
+        "passed": true
+      },
+      "color": {
+        "axis": "monochrome",
+        "passed": true,
+        "violations": []
+      },
+      "topological": {
+        "axis": "closed_paths_no_raster",
+        "passed": true,
+        "violations": []
+      }
+    },
+    "3mf_eligible": true,
+    "viewbox": "0 0 640 640",
+    "units": "px",
+    "px_to_mm": null,
+    "source_relative_path": "01_input_raster/complex_gradients/soloma_01.jpg",
+    "source_sha256": "80fbeda40538afe69f61311bb004aa5cfaabcba072380a38990a23aaf7628f96"
+  },
+  "compile_status": "PASSED"
+}

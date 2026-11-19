@@ -1,0 +1,10 @@
+{
+  "comp_id": "COMP-100052",
+  "status": "QUARANTINED",
+  "reasons": [
+    "raster erode=0.6: ['exceeds printer bounds [445.3333435058594, 500.0, 4.0] > [550.0, 450.0, 450.0]']"
+  ],
+  "source_relative_path": "01_input_raster/complex_gradients/phone_091.jpg",
+  "source_sha256": "9d498310f29ae7db1efa988533cc1c66488a2af41ce04d0f47430627cecf6a08",
+  "source_svg_filename": "svg_phone_091.svg"
+}

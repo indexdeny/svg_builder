@@ -11,6 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 # Allow importing sibling classifier
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import classify as classifier
+import reference_whitelist as whitelist
 
 class RoutingAmbiguityError(Exception):
     pass
@@ -241,59 +242,29 @@ def main():
     print("Starting A01: Deconstructor script...")
     design_tokens = load_design_tokens()
     
-    input_dir = 'input'
-    if not os.path.exists(input_dir):
-        print(f"Input directory '{input_dir}' does not exist. Creating it...")
-        os.makedirs(input_dir, exist_ok=True)
-        return
-        
-    import shutil
-    
-    # Scan input/ recursively so subfolders (e.g. input/photos/) are processed.
-    # Skip backup/service dirs such as input/photos/_precrop_originals/.
-    for root, dirs, filenames in os.walk(input_dir):
-        dirs[:] = [d for d in dirs if not d.startswith('_') and not d.startswith('.')]
-        for file in filenames:
-            if not file.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
-                continue
-            img_path = os.path.join(root, file)
-            print(f"Processing: {img_path}")
-            try:
-                raw_data, duration = deconstruct_image(img_path, design_tokens)
-                
-                # Determine target routing folder based on engine
-                layer2_engine = None
-                for layer in raw_data.get('layers', []):
-                    if layer.get('layer_index') == 2:
-                        layer2_engine = layer.get('engine', '')
-                        break
-                        
-                if layer2_engine and "VTracer" in layer2_engine:
-                    target_dir = '01_input_raster/high_contrast'
-                else:
-                    target_dir = '01_input_raster/complex_gradients'
-                    
-                os.makedirs(target_dir, exist_ok=True)
-                dest_path = os.path.join(target_dir, file)
-                
-                # Copy raw image to the routed folder
-                shutil.copy2(img_path, dest_path)
-                print(f"[ROUTE] Copied source file to {dest_path}")
-                
-                # Output path for raw json
-                basename = os.path.splitext(file)[0]
-                out_path = f"02_processing/{basename}_raw.json"
-                
-                with open(out_path, 'w', encoding='utf-8') as f:
-                    json.dump(raw_data, f, indent=2, ensure_ascii=False)
-                    
-                log_agent_trace(img_path, out_path, "Success", duration)
-                print(f"[OK] Raw deconstruction saved to {out_path} ({duration:.1f}ms)")
-            except Exception as e:
-                import traceback
-                err_msg = str(e) + "\n" + traceback.format_exc()
-                log_agent_trace(img_path, "", "Failed", 0, err_msg)
-                print(f"[FAIL] Error processing {img_path}: {e}")
+    registry = whitelist.load_registry()
+    os.makedirs('02_processing', exist_ok=True)
+    os.makedirs('ops/logs', exist_ok=True)
+    failed = 0
+    for entry in registry['references']:
+        img_path = entry['canonical_relative_path']
+        print(f"Processing: {img_path}")
+        try:
+            raw_data, duration = deconstruct_image(img_path, design_tokens)
+            raw_data['source_file'] = img_path
+            raw_data['source_sha256'] = entry['sha256']
+            raw_data['provenance'] = 'Owner whitelist; classified from unchanged source bytes'
+            identity = __import__('hashlib').sha256(img_path.encode()).hexdigest()[:16]
+            out_path = f"02_processing/{identity}_raw.json"
+            with open(out_path, 'w', encoding='utf-8') as f:
+                json.dump(raw_data, f, indent=2, ensure_ascii=False)
+            log_agent_trace(img_path, out_path, 'Success', duration)
+            print(f"[OK] {out_path}")
+        except Exception as error:
+            failed += 1
+            log_agent_trace(img_path, '', 'Failed', 0, str(error))
+            print(f"[FAIL] {img_path}: {error}")
+    return 1 if failed else 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

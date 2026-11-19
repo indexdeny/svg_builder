@@ -20,11 +20,15 @@ MAXH = 380
 
 
 def main():
-    folder = sys.argv[1] if len(sys.argv) > 1 else 'input/photos'
+    if len(sys.argv) != 2:
+        raise SystemExit('Pass an explicit approved source category folder')
+    folder = sys.argv[1]
     files = sorted(f for f in os.listdir(folder)
                    if f.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')))
     for f in files:
         path = os.path.join(folder, f)
+        from reference_whitelist import verify_path
+        verify_path(path)
         try:
             d = autocrop.analyze_image(path)
         except Exception as e:

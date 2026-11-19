@@ -127,6 +127,8 @@ def main():
                   ensure_ascii=False, indent=2)
 
     if apply:
+        from reference_whitelist import processing_directory
+        processing_directory(folder)
         for p in to_delete:
             os.remove(p)
         print(f"\n[APPLIED] Deleted {len(to_delete)} lighter duplicate(s).")

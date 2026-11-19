@@ -1,0 +1,27 @@
+{
+  "schema": "mesh_artifact_v1",
+  "comp_id": "COMP-100019",
+  "source_svg_filename": "svg_phone_076.svg",
+  "spec_version": "3.5",
+  "px_to_mm": 0.680272,
+  "extrusion_height_mm": 4.0,
+  "polarity": "raised",
+  "base_plate": true,
+  "volume_mm3": 150871.414,
+  "bbox_mm": [
+    500.0,
+    309.524,
+    4.6
+  ],
+  "watertight": true,
+  "winding_consistent": true,
+  "max_printer_bounds_mm": [
+    550.0,
+    450.0,
+    450.0
+  ],
+  "within_bounds": true,
+  "source_relative_path": "01_input_raster/complex_gradients/phone_076.jpg",
+  "source_sha256": "b1640b81423b4a039d03a99f826b6f7e2cc0bbf16a85b84b3cba2d5fc7f22cc6",
+  "source_svg_sha256": "a23dee3fa2441b751ceefeeaf024d4ac1d8ecf924cdb6df19d4a7ffb74aac109"
+}

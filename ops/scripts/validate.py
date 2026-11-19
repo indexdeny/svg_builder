@@ -4,6 +4,8 @@ import json
 import time
 import datetime
 import jsonschema
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import reference_whitelist as whitelist
 
 # Ensure we can run it from project root
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -34,7 +36,7 @@ def get_existing_passport_id(source_file):
 def get_next_passport_id():
     kg_dir = '03_knowledge_graph'
     if not os.path.exists(kg_dir):
-        return "COMP-001"
+        return "COMP-100001"
     existing_ids = []
     for f in os.listdir(kg_dir):
         if f.startswith("COMP-") and f.endswith(".json"):
@@ -44,17 +46,17 @@ def get_next_passport_id():
             except ValueError:
                 pass
     if not existing_ids:
-        return "COMP-001"
+        return "COMP-100001"
     next_num = max(existing_ids) + 1
     return f"COMP-{next_num:03d}"
 
-def log_agent_trace(passport_id, status, duration_ms, error=None):
+def log_agent_trace(passport_id, status, duration_ms, error=None, raw_file=None):
     trace_path = 'ops/logs/agent_trace.jsonl'
     log_entry = {
         "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
         "agent_id": "A02",
         "skill_id": "ontology-normalize",
-        "input_artifact": f"02_processing/{passport_id}_raw.json" if passport_id else "raw_log",
+        "input_artifact": raw_file or '',
         "output_artifact": f"03_knowledge_graph/{passport_id}.json" if status == "Success" else "",
         "status": status,
         "duration_ms": int(duration_ms),
@@ -79,6 +81,7 @@ def generate_markdown_passport(data):
     md = f"# ТЕХНИЧЕСКИЙ ПАСПОРТ ОБЪЕКТА: {data['passport_id']}\n\n"
     md += "## 1. МЕТАДАННЫЕ ИСХОДНИКА\n"
     md += f"- **Файл:** {data['source_file']}\n"
+    md += f"- **SHA-256 исходника:** `{data.get('source_sha256', '')}`\n"
     md += f"- **Разрешение:** {data['resolution']['width_px']}x{data['resolution']['height_px']} px\n"
     
     comp_map = {"Low": "Низкая", "Medium": "Средняя", "High": "Высокая"}
@@ -177,22 +180,28 @@ def validate_released_artifacts():
 
 def main():
     if '--artifacts' in sys.argv:
-        validate_released_artifacts()
-        return
+        return 0 if validate_released_artifacts() else 1
     print("Starting A02: Validator & Normalizer script...")
+    whitelist.load_registry()
+    for directory in ('03_knowledge_graph', '04_passports', 'ops/logs'):
+        os.makedirs(directory, exist_ok=True)
+    for path in __import__('pathlib').Path('03_knowledge_graph').glob('COMP-*.json'):
+        with path.open(encoding='utf-8') as stream:
+            whitelist.verify_record(json.load(stream))
+    failed = 0
     
     try:
         schema = load_schema()
     except Exception as e:
         print(f"[FAIL] Schema load error: {e}")
-        return
+        return 1
         
     proc_dir = '02_processing'
     if not os.path.exists(proc_dir):
         print(f"Directory {proc_dir} does not exist.")
-        return
+        return 1
         
-    for file in os.listdir(proc_dir):
+    for file in sorted(os.listdir(proc_dir)):
         if file.endswith('_raw.json'):
             raw_path = os.path.join(proc_dir, file)
             start_time = time.time()
@@ -201,10 +210,12 @@ def main():
                 with open(raw_path, 'r', encoding='utf-8') as f:
                     raw_data = json.load(f)
             except Exception as e:
+                failed += 1
                 print(f"[FAIL] Failed to read {raw_path}: {e}")
                 continue
                 
-            source_file = raw_data.get('source_file', file)
+            whitelist.verify_record(raw_data)
+            source_file = raw_data['source_file']
             
             # 1. Determine or assign COMP ID
             passport_id = get_existing_passport_id(source_file)
@@ -230,9 +241,10 @@ def main():
             duration_ms = (time.time() - start_time) * 1000
             
             if errors:
+                failed += 1
                 err_messages = [f"{'/'.join(map(str, e.path))}: {e.message}" for e in errors]
                 log_validation_error(passport_id, file, err_messages)
-                log_agent_trace(passport_id, "Failed", duration_ms, "; ".join(err_messages))
+                log_agent_trace(passport_id, "Failed", duration_ms, "; ".join(err_messages), raw_file=raw_path)
                 print(f"[FAIL] Validation failed for {file}. Errors logged to ops/logs/validation_errors.jsonl")
             else:
                 # 4. Save normalized JSON index
@@ -246,8 +258,10 @@ def main():
                 with open(passport_path, 'w', encoding='utf-8') as f:
                     f.write(md_content)
                     
-                log_agent_trace(passport_id, "Success", duration_ms)
+                log_agent_trace(passport_id, "Success", duration_ms, raw_file=raw_path)
                 print(f"[OK] Verified and normaled: {passport_id} -> {passport_path} ({duration_ms:.1f}ms)")
 
+    return 1 if failed else 0
+
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

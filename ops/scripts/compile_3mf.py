@@ -34,6 +34,8 @@ from svgpathtools import parse_path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pipeline_config
 import hifi_vectorize  # render_svg for the raster fallback
+import reference_whitelist as whitelist
+import svg_contract
 
 OUT_DIR = "07_output_3mf"
 SAMPLE_STEP = 0.5          # local-px spacing when flattening Beziers (~0.2px in viewBox)
@@ -383,14 +385,15 @@ def mirror_to_graph(comp_id, meta):
         with open(path, 'w', encoding='utf-8') as f:
             json.dump(d, f, indent=2, ensure_ascii=False)
     except Exception as e:
-        print(f"[WARN] graph mirror failed for {comp_id}: {e}")
+        raise RuntimeError(f"graph mirror failed for {comp_id}: {e}") from e
 
 
 def log_trace(comp_id, status, duration_ms, meta=None, error=None):
     entry = {"timestamp": datetime.datetime.utcnow().isoformat() + "Z",
              "agent_id": "A09", "skill_id": "svg-to-3mf",
              "input_artifact": meta.get('source_svg_filename') if meta else "",
-             "output_artifact": f"{OUT_DIR}/{comp_id}.3mf" if status == "Success" else "",
+             "output_artifact": (f"{OUT_DIR}/{os.path.splitext(meta['source_svg_filename'])[0]}_{meta['polarity']}.3mf"
+                                 if status == "Success" and meta else ""),
              "status": status, "duration_ms": int(duration_ms),
              "volume_mm3": meta.get('volume_mm3') if meta else None, "error": error}
     with open('ops/logs/agent_trace.jsonl', 'a', encoding='utf-8') as f:
@@ -440,22 +443,38 @@ def process_one(comp_id, comp_data, cli_override):
     (owner requirement: 'и трафарет, и рельеф'). Each variant is validated and
     released independently; a variant that cannot be made watertight quarantines
     on its own without blocking the other."""
+    whitelist.verify_record(comp_data)
     start = time.time()
     am = comp_data.get('artifact_metadata', {})
     svg_name = am.get('output_filename') or comp_data.get('output_filename')
+    if not isinstance(svg_name, str) or os.path.basename(svg_name) != svg_name or '/' in svg_name or '\\' in svg_name:
+        raise ValueError('Source SVG requires a plain output filename')
     stem = os.path.splitext(svg_name)[0] if svg_name else comp_id
     base_cfg = pipeline_config.three_mf_config(comp_data.get('three_mf_override'),
                                                cli_override)
 
     svg_path = find_svg(svg_name) if svg_name else None
     if not svg_path:
-        _quarantine(comp_id, stem, None, [f"source SVG not found: {svg_name}"], start)
+        for polarity in ('cutout', 'raised'):
+            reconcile_outcome(f'{stem}_{polarity}', False)
+            _quarantine(comp_id, f'{stem}_{polarity}', None, [f"source SVG not found: {svg_name}"], start)
+        mirror_to_graph(comp_id, {})
         return {'cutout': 'quarantine', 'raised': 'quarantine'}
     with open(svg_path, encoding='utf-8') as f:
         svg = f.read()
+    embedded = svg_contract.extract_metadata(svg)
+    if (embedded != am or embedded.get('comp_id') != comp_id
+            or embedded.get('source_relative_path') != comp_data['source_file']
+            or embedded.get('source_sha256') != comp_data['source_sha256']
+            or not embedded.get('gate_results', {}).get('visual', {}).get('passed')
+            or not embedded.get('3mf_eligible')):
+        raise ValueError('Source SVG does not match the released whitelist artifact')
     vw, vh, cands = geometry_candidates(svg)
     if not cands:                                           # T1 empty invariant
-        _quarantine(comp_id, stem, None, ["empty geometry after extraction"], start)
+        for polarity in ('cutout', 'raised'):
+            reconcile_outcome(f'{stem}_{polarity}', False)
+            _quarantine(comp_id, f'{stem}_{polarity}', None, ["empty geometry after extraction"], start)
+        mirror_to_graph(comp_id, {})
         return {'cutout': 'quarantine', 'raised': 'quarantine'}
 
     os.makedirs(OUT_DIR, exist_ok=True)
@@ -468,27 +487,48 @@ def process_one(comp_id, comp_data, cli_override):
         vstem = f"{stem}_{polarity}"
         data, px, src, diag, reasons = _attempt(cands, vw, vh, cfg, polarity, start)
         if data is None:
+            reconcile_outcome(vstem, False)
             _quarantine(comp_id, vstem, None, reasons, start)
             print(f"[FAIL] {comp_id} [{polarity}] -> quarantine: {reasons}")
             outcome[polarity] = 'quarantine'
             continue
         meta = build_metadata(comp_id, svg_name, px, cfg, diag)
+        meta.update(source_relative_path=comp_data['source_file'],
+                    source_sha256=comp_data['source_sha256'],
+                    source_svg_sha256=whitelist.sha256(svg_path))
         schema_errs = validate_metadata(meta)               # T4 contract
         if schema_errs:
+            reconcile_outcome(vstem, False)
             _quarantine(comp_id, vstem, None, [f"metadata schema: {schema_errs}"], start, meta)
             outcome[polarity] = 'quarantine'
             continue
         with open(f"{OUT_DIR}/{vstem}.3mf", 'wb') as f:     # reuse the verified bytes
             f.write(data)
         _write_sidecar(f"{OUT_DIR}/{vstem}.3mf.json", meta)
+        reconcile_outcome(vstem, True)
         log_trace(comp_id, "Success", (time.time() - start) * 1000, meta)
         graph_meta[polarity] = meta
         outcome[polarity] = 'release'
         print(f"[OK] {comp_id} ({src}) [{polarity}] -> {OUT_DIR}/{vstem}.3mf  "
               f"bbox_mm={diag['bbox_mm']} vol={diag['volume_mm3']:.0f}")
-    if graph_meta:
-        mirror_to_graph(comp_id, graph_meta)
+    mirror_to_graph(comp_id, graph_meta)
     return outcome
+
+
+def reconcile_outcome(stem, released):
+    """Remove only the opposite outcome for this exact artifact variant."""
+    if os.path.basename(stem) != stem or '/' in stem or '\\' in stem or stem in ('.', '..'):
+        raise ValueError('Invalid artifact stem')
+    output = whitelist.ROOT / OUT_DIR
+    paths = ([output / 'quarantine' / (stem + '.failure.json')]
+             if released else [output / (stem + '.3mf'), output / (stem + '.3mf.json')])
+    for path in paths:
+        whitelist.reject_links(path, whitelist.ROOT)
+        if not path.resolve().is_relative_to(output.resolve()):
+            raise ValueError('Outcome cleanup escapes declared 3MF output directory')
+    for path in paths:
+        if path.is_file():
+            path.unlink()
 
 
 def _write_sidecar(path, meta):
@@ -505,23 +545,32 @@ def _quarantine(comp_id, stem, mesh, reasons, start, meta=None):
             export_3mf(mesh, f"{qdir}/{stem}.3mf")
         except Exception:
             pass
-    _write_sidecar(f"{qdir}/{stem}.3mf.json",
-                   meta or {'comp_id': comp_id, 'reasons': reasons})
+    diagnostic = dict(meta or {})
+    diagnostic.update(comp_id=comp_id, status='QUARANTINED', reasons=reasons)
+    graph_path = f'03_knowledge_graph/{comp_id}.json'
+    if os.path.exists(graph_path):
+        with open(graph_path, encoding='utf-8') as stream:
+            source = json.load(stream)
+        diagnostic.update(source_relative_path=source.get('source_file'),
+                          source_sha256=source.get('source_sha256'),
+                          source_svg_filename=source.get('output_filename'))
+    _write_sidecar(f"{qdir}/{stem}.failure.json", diagnostic)
     log_trace(comp_id, "Failed", (time.time() - start) * 1000, meta, "; ".join(reasons))
 
 
 def clean_outputs():
-    n = 0
-    for pat in (f'{OUT_DIR}/*.3mf', f'{OUT_DIR}/*.3mf.json',
-                f'{OUT_DIR}/quarantine/*', f'{OUT_DIR}/staging/*'):
-        for f in glob.glob(pat):
-            if os.path.isfile(f):
-                os.remove(f)
-                n += 1
+    n = whitelist.clean_generated(whitelist.ROOT / OUT_DIR,
+        ['*.3mf', '*.3mf.json', 'quarantine/*.3mf', 'quarantine/*.3mf.json',
+         'staging/*.3mf', 'staging/*.3mf.json', 'quarantine/*.failure.json'])
     print(f"[CLEAN] removed {n} old 3MF artifact(s)")
 
 
 def main():
+    whitelist.load_registry()
+    os.makedirs('ops/logs', exist_ok=True)
+    for path in glob.glob('03_knowledge_graph/COMP-*.json'):
+        with open(path, encoding='utf-8') as stream:
+            whitelist.verify_record(json.load(stream))
     argv = sys.argv[1:]
     only = argv[argv.index('--only') + 1] if '--only' in argv else None
     cli_override = None
@@ -543,7 +592,8 @@ def main():
 
     released = quarantined = skipped = 0
     for cid, data in work:
-        eligible = (data.get('artifact_metadata', {}).get('3mf_eligible') is True)
+        eligible = (data.get('artifact_metadata', {}).get('3mf_eligible') is True
+                    and data.get('compile_status') == 'PASSED')
         if not eligible:
             print(f"[SKIP] Object {cid} not eligible for 3D extrusion")
             skipped += 1
@@ -555,7 +605,8 @@ def main():
     print(f"\n--- Stage 4 Summary (cutout + raised per object) ---\n"
           f"Released variants: {released}  Quarantined: {quarantined}  "
           f"Skipped objects (not eligible): {skipped}")
+    return 1 if quarantined else 0
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

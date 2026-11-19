@@ -12,6 +12,7 @@ import glob
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 # Allow importing sibling scripts (hifi_vectorize)
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+import reference_whitelist as whitelist
 
 def load_design_tokens():
     tokens_path = '00_governance/design-tokens.json'
@@ -35,6 +36,10 @@ def log_agent_trace(passport_id, status, duration_ms, error=None, agent_id="A05"
     }
     if metrics:
         log_entry["metrics"] = metrics
+        name = metrics.get('output_filename')
+        if name:
+            log_entry['input_artifact'] = f"05_output_svg/staging/{os.path.splitext(name)[0]}_compiled.svg"
+            log_entry['output_artifact'] = f"05_output_svg/{name}" if status == 'Success' else ''
     with open(trace_path, 'a', encoding='utf-8') as f:
         f.write(json.dumps(log_entry, ensure_ascii=False) + '\n')
 
@@ -326,7 +331,7 @@ def compile_object_svg_mono(passport_id, design_tokens, output_name=None):
     with open(index_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    image_path = find_source_image(data['source_file'])
+    image_path = find_source_image(data['source_file'], data.get('source_sha256'))
     if not image_path:
         raise FileNotFoundError(f"Source image not found for: {data['source_file']}")
 
@@ -409,7 +414,8 @@ def compile_object_svg_mono(passport_id, design_tokens, output_name=None):
         source_filename=os.path.basename(data['source_file']),
         output_filename=output_name, ssim=result['ssim_ref'],
         ssim_threshold=threshold, color_violations=color_violations,
-        topo=topo, viewbox=viewbox)
+        topo=topo, viewbox=viewbox, source_relative_path=data['source_file'],
+        source_sha256=data['source_sha256'])
 
     metrics = {
         "input_type": input_type,
@@ -427,7 +433,7 @@ def compile_object_svg_mono(passport_id, design_tokens, output_name=None):
     os.makedirs("05_output_svg/staging", exist_ok=True)
     with open(f"05_output_svg/staging/{stem}_compiled.svg", 'w',
               encoding='utf-8') as f:
-        f.write(svg_content)
+        f.write(svg_contract.embed_metadata(svg_content, meta))
 
     # Release decision (2D) is governed by the VISUAL axis (SSIM gate) + colour
     # axis + naming. 3mf_eligible is an independent metadata flag and does NOT
@@ -456,12 +462,24 @@ def compile_object_svg_mono(passport_id, design_tokens, output_name=None):
         os.makedirs(os.path.dirname(quarantine_path), exist_ok=True)
         with open(quarantine_path, 'w', encoding='utf-8') as f:
             f.write(svg_out)
+        with open(index_path, encoding='utf-8') as f:
+            data = json.load(f)
+        data['compile_status'] = 'QUARANTINED'
+        data.pop('mesh_artifact_metadata', None)
+        with open(index_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
         print(f"[FAIL] {passport_id} ({render_mode}) -> quarantine/{output_name}: {errors}")
         return False
 
     final_path = f"05_output_svg/{output_name}"
     with open(final_path, 'w', encoding='utf-8') as f:
         f.write(svg_out)
+    with open(index_path, encoding='utf-8') as f:
+        data = json.load(f)
+    data['compile_status'] = 'PASSED'
+    data.pop('mesh_artifact_metadata', None)
+    with open(index_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
     log_agent_trace(passport_id, "Success", duration_ms, agent_id="A08", metrics=metrics)
     print(f"[OK] {passport_id} [{input_type}/{render_mode}/{detail}] "
           f"3mf={meta['3mf_eligible']}: SSIM={result['ssim_ref']:.4f} "
@@ -607,17 +625,9 @@ def compile_object_svg(passport_id, design_tokens):
         print(f"[OK] QA Audit passed for {passport_id}. Composite SVG saved to {final_path} ({duration_ms:.1f}ms)")
         return True
 
-def find_source_image(source_file):
-    search_dirs = [
-        '01_input_raster/high_contrast',
-        '01_input_raster/complex_gradients',
-        'input',
-    ]
-    for d in search_dirs:
-        p = os.path.join(d, source_file)
-        if os.path.exists(p):
-            return p
-    return None
+def find_source_image(source_file, source_sha256=None):
+    return str(whitelist.verify_record({'source_file': source_file,
+                                      'source_sha256': source_sha256}))
 
 # ---- CR v3.3: output naming standard + clean rebuild ------------------------
 
@@ -642,12 +652,8 @@ def clean_outputs():
     """Full clean rebuild (CR v3.3 §1): remove every previously generated SVG
     from the release root, staging and quarantine. Sources / passports / graph
     / logs are left untouched."""
-    removed = 0
-    for pat in ('05_output_svg/*.svg', '05_output_svg/staging/*.svg',
-                '05_output_svg/quarantine/*.svg'):
-        for f in glob.glob(pat):
-            os.remove(f)
-            removed += 1
+    removed = whitelist.clean_generated(whitelist.ROOT / '05_output_svg',
+                                        ['*.svg', 'staging/*.svg', 'quarantine/*.svg'])
     print(f"[CLEAN] Removed {removed} old SVG file(s) before full rebuild.")
 
 def annotate_passport(passport_id, source_file, output_name, artifact_metadata=None):
@@ -678,7 +684,7 @@ def compile_object_svg_hifi(passport_id, design_tokens):
     with open(index_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    image_path = find_source_image(data['source_file'])
+    image_path = find_source_image(data['source_file'], data.get('source_sha256'))
     if not image_path:
         raise FileNotFoundError(f"Source image not found for: {data['source_file']}")
 
@@ -734,6 +740,12 @@ def main():
     mono = compiler is compile_object_svg_mono
     print(f"Starting A05: SVG Compiler & QA Auditor script... mode: {mode}")
     design_tokens = load_design_tokens()
+    whitelist.load_registry()
+    os.makedirs('ops/logs', exist_ok=True)
+    # Validate every record before a clean rebuild can remove any output.
+    for path in glob.glob('03_knowledge_graph/COMP-*.json'):
+        with open(path, encoding='utf-8') as stream:
+            whitelist.verify_record(json.load(stream))
 
     kg_dir = "03_knowledge_graph"
     if not os.path.exists(kg_dir):
@@ -785,6 +797,7 @@ def main():
     print(f"Total compiled: {total_count}")
     print(f"Success (QA Passed): {success_count}")
     print(f"Failed (QA Failed): {total_count - success_count}")
+    return 0 if total_count == success_count else 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

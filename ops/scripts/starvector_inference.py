@@ -7,17 +7,12 @@ from PIL import Image
 
 # Ensure we can run it from project root
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import reference_whitelist as whitelist
 
-def find_image_path(source_file):
-    search_dirs = [
-        '01_input_raster/high_contrast',
-        '01_input_raster/complex_gradients'
-    ]
-    for d in search_dirs:
-        p = os.path.join(d, source_file)
-        if os.path.exists(p):
-            return p
-    return None
+def find_image_path(source_file, source_sha256=None):
+    return str(whitelist.verify_record({'source_file': source_file,
+                                      'source_sha256': source_sha256}))
 
 def log_agent_trace(passport_id, layer_index, status, duration_ms, error=None):
     trace_path = 'ops/logs/agent_trace.jsonl'
@@ -106,7 +101,7 @@ def run_neural_inference(image_path, output_path):
         
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
-            cache_dir=r"C:\Users\candy\.cache\huggingface\hub",
+            cache_dir=os.environ.get('HF_HUB_CACHE'),
             quantization_config=bnb_config,
             device_map="auto",
             trust_remote_code=True,
@@ -199,7 +194,7 @@ def main():
         
     passport_id = sys.argv[1]
     layer_index = int(sys.argv[2])
-    output_path = sys.argv[3]
+    output_path = str(whitelist.output_file(sys.argv[3], suffix='.svg'))
     
     start_time = time.time()
     
@@ -212,7 +207,7 @@ def main():
         data = json.load(f)
         
     source_file = data['source_file']
-    image_path = find_image_path(source_file)
+    image_path = find_image_path(source_file, data.get('source_sha256'))
     if not image_path:
         print(f"[ERROR] Source image not found for: {source_file}")
         sys.exit(3)

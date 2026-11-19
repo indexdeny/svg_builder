@@ -1,6 +1,12 @@
 {
   "$comment": "SSOT — single source of truth for pipeline version, engine, colour model and release gates (svg_cad T0). Resolves version drift (E-4) and colour-model ambiguity (E-5). State docs MUST reference this file instead of duplicating values. Code reads gates from here via ops/scripts/pipeline_config.py.",
   "config_version": "1.0",
+  "source_dataset": {
+    "allowed_roots": ["01_input_raster/complex_gradients", "01_input_raster/high_contrast"],
+    "registry": "reference-whitelist.json",
+    "identity": "canonical_relative_path+sha256",
+    "owner_decision": "2026-11-19 addendum v1.1; intake from these folders only"
+  },
   "spec_version": "3.5",
   "spec_lineage": "TZ v3.0 (HiFi deterministic) -> v3.1 (monochrome+sketch) -> v3.2 (portrait detail) -> CR v3.3 (rebuild+naming) -> CR v3.4 (photo intake/de-chrome) -> CR v3.5 (mode-recovery fallback)",
   "engine": {

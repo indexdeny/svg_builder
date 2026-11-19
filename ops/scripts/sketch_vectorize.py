@@ -167,6 +167,9 @@ def main():
         print(__doc__)
         sys.exit(1)
     image_path, output_path = sys.argv[1], sys.argv[2]
+    from reference_whitelist import verify_path, output_file
+    image_path = str(verify_path(image_path))
+    output_path = str(output_file(output_path, suffix='.svg'))
     detail = sys.argv[3] if len(sys.argv) > 3 else 'HIGH'
     res = vectorize_sketch(image_path, detail)
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)

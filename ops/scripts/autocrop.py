@@ -165,8 +165,15 @@ def analyze_image(path):
 
 
 def process_folder(folder, apply=False, backup_dir=None):
+    if apply:
+        from reference_whitelist import processing_directory
+        processing_directory(folder)
     if backup_dir is None:
         backup_dir = os.path.join(folder, '_precrop_originals')
+    if apply:
+        processing_directory(backup_dir, allow_missing=True)
+        if os.path.abspath(backup_dir) == os.path.abspath(folder):
+            raise ValueError('Backup requires a separate processing output directory')
     files = sorted(f for f in os.listdir(folder)
                    if f.lower().endswith(('.jpg', '.jpeg', '.png', '.webp'))
                    and os.path.isfile(os.path.join(folder, f)))

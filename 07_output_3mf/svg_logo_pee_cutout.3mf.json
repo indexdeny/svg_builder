@@ -1,6 +1,6 @@
 {
   "schema": "mesh_artifact_v1",
-  "comp_id": "COMP-028",
+  "comp_id": "COMP-100054",
   "source_svg_filename": "svg_logo_pee.svg",
   "spec_version": "3.5",
   "px_to_mm": 0.625,
@@ -20,5 +20,8 @@
     450.0,
     450.0
   ],
-  "within_bounds": true
+  "within_bounds": true,
+  "source_relative_path": "01_input_raster/complex_gradients/logo_pee.png",
+  "source_sha256": "a019bcd977b82d6d5104891cfdb2e52e2c5f8fae54cbacb158abb90e3a2527b4",
+  "source_svg_sha256": "8319ff0897d9c781fbf171f65bf6fb55c85f8d41afaf3442cc66a8ae566cf952"
 }
