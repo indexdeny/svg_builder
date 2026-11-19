@@ -1,5 +1,11 @@
 # Python
 __pycache__/
+
+# Private execution reports and plans are stored outside the public repository.
+docs/audits/
+docs/plans/
+REFERENCE_LINEAGE_AUDIT.md
+00_PROJECT_STATE/
 *.pyc
 *.pyo
 *.pyd

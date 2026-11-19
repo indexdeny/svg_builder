@@ -75,7 +75,7 @@ SKETCH_VECTOR не допускается к экструзии.
 Схемы: [паспорт](00_governance/schemas/passport_schema_v1.json),
 [SVG artifact](00_governance/schemas/svg_artifact_v1.schema.json),
 [mesh artifact](00_governance/schemas/mesh_artifact_v1.schema.json).
-Подробнее: [архитектура](docs/ARCHITECTURE.md) и [аудит lineage](REFERENCE_LINEAGE_AUDIT.md).
+Подробнее: [архитектура](docs/ARCHITECTURE.md).
 
 ## Проверки
 
@@ -107,6 +107,3 @@ python ops/scripts/smoke_check.py
   коммитах и других ветках; это отдельная задача history remediation.
 - Исторические нейронные и вспомогательные модули сохранены, но не входят в
   текущий маршрут компиляции по умолчанию.
-
-Точные замеры, проверка backup, результаты тестов и состояние публикации:
-[FINAL_REFERENCE_CLEANUP_REPORT.md](docs/audits/FINAL_REFERENCE_CLEANUP_REPORT.md).
