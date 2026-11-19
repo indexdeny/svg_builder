@@ -65,14 +65,15 @@ def topology_axis(svg_content):
 
 def build_metadata(comp_id, spec_version, engine, render_mode, fallback_from,
                    source_filename, output_filename, ssim, ssim_threshold,
-                   color_violations, topo, viewbox, px_to_mm=None):
+                   color_violations, topo, viewbox, px_to_mm=None,
+                   source_relative_path=None, source_sha256=None):
     """Assemble the artifact metadata object (svg_artifact_v1).
 
     3mf_eligible = colour-conformant AND topologically closed AND not a sketch
     (audit principle 3: SKETCH_VECTOR -> 3mf_eligible = False regardless of SSIM)."""
     color_ok = not color_violations
     eligible = bool(color_ok and topo['passed'] and render_mode == 'STANDARD_VECTOR')
-    return {
+    metadata = {
         'schema': 'svg_artifact_v1',
         'comp_id': comp_id,
         'spec_version': str(spec_version),
@@ -94,6 +95,10 @@ def build_metadata(comp_id, spec_version, engine, render_mode, fallback_from,
         'units': 'px',
         'px_to_mm': px_to_mm,
     }
+    if source_relative_path is not None:
+        metadata['source_relative_path'] = source_relative_path
+        metadata['source_sha256'] = source_sha256
+    return metadata
 
 
 def validate_artifact(meta):

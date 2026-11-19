@@ -13,6 +13,7 @@ Covers:
 """
 import os
 import sys
+import tempfile
 
 import numpy as np
 from PIL import Image
@@ -74,9 +75,9 @@ check("T1 metadata embeds into <svg>", '<metadata id="svgcad"' in embedded)
 check("T1 embed/extract round-trips", C.extract_metadata(embedded) == std)
 
 # ---- T3: filtration invariant (R-03 regression) --------------------------
-os.makedirs('ops/qa_previews', exist_ok=True)
+_test_temp = tempfile.TemporaryDirectory()
 grad = np.tile(np.linspace(0, 255, 256).astype(np.uint8)[:, None], (1, 256))
-gp = 'ops/qa_previews/_t3_regression.png'
+gp = os.path.join(_test_temp.name, 'gradient.png')
 Image.fromarray(np.stack([grad] * 3, -1)).save(gp)
 r = H.vectorize_monochrome(gp, 'LOW', log=lambda *a: None)
 # R-03: must not silently emit an empty foreground. Either >=1 path retained,
@@ -91,15 +92,15 @@ check("T3 gradient was rescued to non-empty foreground", r.get('n_paths', 0) >= 
 import compile_svg as CS  # noqa: E402
 import numpy as _np  # noqa: E402
 from PIL import Image as _Image  # noqa: E402
-os.makedirs('ops/qa_previews', exist_ok=True)
-_blur = 'ops/qa_previews/_suit_blur.png'
+_blur = os.path.join(_test_temp.name, 'blur.png')
 _Image.fromarray((_np.ones((200, 200, 3)) * 180).astype('uint8')).save(_blur)  # featureless
 _low, _ = CS.source_too_low_detail(_blur)
 check("suitability: featureless source rejected", _low is True)
-_sharp = 'ops/qa_previews/_suit_sharp.png'
+_sharp = os.path.join(_test_temp.name, 'sharp.png')
 _a = _np.full((200, 200, 3), 255, 'uint8'); _a[60:140, 60:140] = 0       # crisp square
 _Image.fromarray(_a).save(_sharp)
 _lo2, _ = CS.source_too_low_detail(_sharp)
 check("suitability: crisp graphic NOT rejected", _lo2 is False)
 
 print(f"\nAll {PASS} svg_cad assertions passed.")
+_test_temp.cleanup()

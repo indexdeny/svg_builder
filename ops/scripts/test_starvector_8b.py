@@ -1,9 +1,16 @@
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from reference_whitelist import verify_path
+if len(sys.argv) != 2:
+    raise SystemExit('Legacy experiment: pass an exact approved source path; not part of the active pipeline')
+TEST_IMAGE = str(verify_path(sys.argv[1]))
 import torch
 from transformers import AutoProcessor, AutoModelForCausalLM, BitsAndBytesConfig
 from PIL import Image
 
 MODEL_ID = "starvector/starvector-8b-im2svg"
-HF_CACHE = r"C:\Users\candy\.cache\huggingface\hub"
+HF_CACHE = os.environ.get('HF_HUB_CACHE')
 
 print(f"CUDA available: {torch.cuda.is_available()}")
 print(f"GPU: {torch.cuda.get_device_name(0)}")
@@ -45,7 +52,6 @@ vram_used = torch.cuda.memory_allocated() / 1e9
 print(f"Model loaded. VRAM used: {vram_used:.2f} GB")
 
 # Тестовый инференс на одном изображении
-TEST_IMAGE = r"c:\svg_builder\input\logo_ym_proskin_002.png"
 image = Image.open(TEST_IMAGE).convert("RGB")
 
 print("Processing image...")

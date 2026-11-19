@@ -1,0 +1,107 @@
+{
+  "source_file": "01_input_raster/complex_gradients/phone_041.jpg",
+  "resolution": {
+    "width_px": 236,
+    "height_px": 420
+  },
+  "complexity": "High",
+  "provenance": "Owner whitelist; classified from unchanged source bytes",
+  "layers": [
+    {
+      "layer_index": 1,
+      "geometry_type": "BoundingRect",
+      "engine": "StarVector",
+      "color_token": "--bg",
+      "bounding_box": [
+        0.0,
+        0.0,
+        236.0,
+        420.0
+      ]
+    },
+    {
+      "layer_index": 2,
+      "geometry_type": "CompoundPath",
+      "engine": "OpenCV+StarVector",
+      "color_token": "--dark",
+      "anchor_points_limit": 45,
+      "bounding_box": [
+        0.0,
+        0.0,
+        236.0,
+        420.0
+      ]
+    }
+  ],
+  "metrics": {
+    "unique_colors": 313,
+    "has_gradient": true,
+    "canny_score": 2.4247523714279775,
+    "snr_db": 2.5649735033538863
+  },
+  "input_type": "HUMAN_PHOTO",
+  "render_mode": "SKETCH_VECTOR",
+  "vector_detail_level": "HIGH",
+  "is_tonal": false,
+  "source_width": 236,
+  "source_height": 420,
+  "aspect_ratio": "59:105",
+  "target_canvas": {
+    "width": 575,
+    "height": 1024
+  },
+  "preserve_aspect_ratio": true,
+  "line_quality": "HIGH",
+  "noise_reduction": "MEDIUM",
+  "min_line_width": 0.4,
+  "max_line_width": 2.0,
+  "keep_facial_details": true,
+  "keep_hair_details": true,
+  "keep_clothing_details": true,
+  "remove_texture_noise": true,
+  "source_sha256": "8a0f3b6cfb6626858d0ae6b1ef7f1b671007f54cea65bceeaf9e270f629d33ef",
+  "passport_id": "COMP-100034",
+  "automation_meta": {
+    "deconstruction_status": "Verified",
+    "export_path": "/05_output_svg/res_comp_100034.svg",
+    "entity_id": "logo_primitive_100034",
+    "source_ref": "SRC-100054"
+  },
+  "source_filename": "phone_041.jpg",
+  "output_filename": "svg_phone_041.svg",
+  "artifact_metadata": {
+    "schema": "svg_artifact_v1",
+    "comp_id": "COMP-100034",
+    "spec_version": "3.5",
+    "engine": "deterministic_vtracer",
+    "render_mode": "SKETCH_VECTOR",
+    "fallback_from": null,
+    "source_filename": "phone_041.jpg",
+    "output_filename": "svg_phone_041.svg",
+    "gate_results": {
+      "visual": {
+        "axis": "ssim",
+        "value": 0.9417,
+        "threshold": 0.75,
+        "passed": true
+      },
+      "color": {
+        "axis": "monochrome",
+        "passed": true,
+        "violations": []
+      },
+      "topological": {
+        "axis": "closed_paths_no_raster",
+        "passed": true,
+        "violations": []
+      }
+    },
+    "3mf_eligible": false,
+    "viewbox": "0 0 236 420",
+    "units": "px",
+    "px_to_mm": null,
+    "source_relative_path": "01_input_raster/complex_gradients/phone_041.jpg",
+    "source_sha256": "8a0f3b6cfb6626858d0ae6b1ef7f1b671007f54cea65bceeaf9e270f629d33ef"
+  },
+  "compile_status": "PASSED"
+}

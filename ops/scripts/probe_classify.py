@@ -6,12 +6,8 @@ import classify as C
 
 
 def find_src(name):
-    for d in ('input/photos', 'input/des', 'input',
-              '01_input_raster/high_contrast', '01_input_raster/complex_gradients'):
-        p = os.path.join(d, name)
-        if os.path.exists(p):
-            return p
-    return None
+    from reference_whitelist import verify_path
+    return str(verify_path(name))
 
 
 def main():

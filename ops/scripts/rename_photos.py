@@ -22,7 +22,12 @@ def main():
         sys.exit(1)
     folder = sys.argv[1]
     apply = '--apply' in sys.argv
+    if apply:
+        from reference_whitelist import processing_directory
+        processing_directory(folder)
     prefix = sys.argv[sys.argv.index('--prefix') + 1] if '--prefix' in sys.argv else 'photo'
+    if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_-]*', prefix):
+        raise ValueError('Prefix must contain only ASCII letters, digits, underscores and hyphens')
 
     files = [f for f in os.listdir(folder)
              if f.lower().endswith(EXTS) and os.path.isfile(os.path.join(folder, f))]

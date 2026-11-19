@@ -1,13 +1,13 @@
 {
   "schema": "mesh_artifact_v1",
-  "comp_id": "COMP-260",
+  "comp_id": "COMP-100025",
   "source_svg_filename": "svg_kolia_01.svg",
   "spec_version": "3.5",
   "px_to_mm": 0.486855,
   "extrusion_height_mm": 4.0,
   "polarity": "cutout",
   "base_plate": false,
-  "volume_mm3": 787852.89,
+  "volume_mm3": 785073.462,
   "bbox_mm": [
     500.0,
     437.683,
@@ -20,5 +20,8 @@
     450.0,
     450.0
   ],
-  "within_bounds": true
+  "within_bounds": true,
+  "source_relative_path": "01_input_raster/complex_gradients/kolia_01.jpg",
+  "source_sha256": "96b9ff26bc9402e94fe75aa4a33dcd01658d00c38a38ea665eae6400b2fd83b2",
+  "source_svg_sha256": "4aa354c300d7cc97326cbf4538493c3d756453a35723017b2bafd8a46da863ce"
 }

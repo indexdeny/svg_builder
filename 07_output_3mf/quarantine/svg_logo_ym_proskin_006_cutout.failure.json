@@ -1,0 +1,10 @@
+{
+  "comp_id": "COMP-100044",
+  "status": "QUARANTINED",
+  "reasons": [
+    "raster erode=0.6: ['exceeds printer bounds [500.0, 463.0738525390625, 4.0] > [550.0, 450.0, 450.0]']"
+  ],
+  "source_relative_path": "01_input_raster/complex_gradients/logo_ym_proskin_006.png",
+  "source_sha256": "f4c5a99d13b35f8cd09f92b052dd136849438d4900e861b47ace1be19017f0a4",
+  "source_svg_filename": "svg_logo_ym_proskin_006.svg"
+}

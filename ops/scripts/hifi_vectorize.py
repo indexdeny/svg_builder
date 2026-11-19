@@ -497,9 +497,12 @@ def main():
         print(__doc__)
         sys.exit(1)
     image_path, output_path = sys.argv[1], sys.argv[2]
+    from reference_whitelist import verify_path, output_file
+    image_path = str(verify_path(image_path))
+    output_path = str(output_file(output_path, suffix='.svg'))
     report_path = None
     if '--report' in sys.argv:
-        report_path = sys.argv[sys.argv.index('--report') + 1]
+        report_path = str(output_file(sys.argv[sys.argv.index('--report') + 1], suffix='.json'))
 
     tokens_path = os.path.join(os.path.dirname(__file__), '..', '..',
                                '00_governance', 'design-tokens.json')

@@ -5,7 +5,7 @@ Classifies the image, runs the matching engine (sketch or monochrome fill),
 normalizes to the black-on-transparent standard, validates RULE 1-5, and
 writes a side-by-side preview. Does NOT touch the knowledge graph — dry run.
 
-Usage:  python ops/scripts/preflight.py input/<image>
+Usage: python ops/scripts/preflight.py 01_input_raster/<allowed-category>/<image>
 Output: ops/qa_previews/preflight/_pre_<stem>.svg   candidate SVG (release standard)
         ops/qa_previews/preflight/_pre_<stem>.png   original | rendered (on white)
         ops/qa_previews/preflight/_pre_<stem>.json  metrics + classification + rules
@@ -28,7 +28,8 @@ os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 
 def main():
-    image_path = sys.argv[1]
+    from reference_whitelist import verify_path
+    image_path = str(verify_path(sys.argv[1]))
     stem = os.path.splitext(os.path.basename(image_path))[0]
     out_dir = 'ops/qa_previews/preflight'
     os.makedirs(out_dir, exist_ok=True)

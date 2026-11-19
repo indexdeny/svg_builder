@@ -1,6 +1,6 @@
 {
   "schema": "mesh_artifact_v1",
-  "comp_id": "COMP-155",
+  "comp_id": "COMP-100006",
   "source_svg_filename": "svg_soloma_02.svg",
   "spec_version": "3.5",
   "px_to_mm": 0.414594,
@@ -20,5 +20,8 @@
     450.0,
     450.0
   ],
-  "within_bounds": true
+  "within_bounds": true,
+  "source_relative_path": "01_input_raster/complex_gradients/soloma_02.jpg",
+  "source_sha256": "7a0a4a5387669496342c05bab8dc70b9a5b48c7971f62f16ee37c6cce11476e2",
+  "source_svg_sha256": "18a4cb1da02859da6abd7346661ab0270b9380d7fcf51991043fa9b866cdc669"
 }

@@ -18,6 +18,8 @@
     "render_mode": { "enum": ["SKETCH_VECTOR", "STANDARD_VECTOR", "COLOR_LEGACY"] },
     "fallback_from": { "type": ["string", "null"] },
     "source_filename": { "type": "string" },
+    "source_relative_path": { "type": "string" },
+    "source_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
     "output_filename": { "type": "string", "pattern": "^svg_.+\\.svg$" },
     "gate_results": {
       "type": "object",
