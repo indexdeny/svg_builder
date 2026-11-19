@@ -1,6 +1,6 @@
 # Итоговый отчёт об очистке референсов SVG Builder
 
-Дата: 2026-11-19. Основание: owner addendum v1.1. Статус: **LOCAL VALIDATION / PUBLICATION PENDING**.
+Дата: 2026-11-19. Основание: owner addendum v1.1. Статус: **READY WITH LIMITATIONS**.
 
 ## Результат
 
@@ -86,6 +86,13 @@ viewBox, режиму, SSIM, eligibility и совпадению с graph mirror
 - Повтор PASS → FAIL → PASS не оставляет старых binary/sidecar/diagnostics/mirrors.
 - Удаление binary обнаруживается аудитом; SKETCH_VECTOR CLI проверен на fixture.
 - Зависимости установлены в отдельное чистое venv из requirements.txt.
+- Исправлена обнаруженная в чистом venv обязательная зависимость lxml для 3MF.
+- Чистый clone проверен с новым venv: 18 unittest, 17 SVG assertions,
+  14 geometry assertions, dataset audit и полный smoke прошли; Git status чистый.
+- Отдельный clone опубликованного master с GitHub проверен повторно:
+  56 исходников, 56 release SVG, 18 моделей, 18 sidecars, 66 диагностик;
+  SHA-256 источников и source SVG, прямые/обратные связи и геометрия соответствуют.
+- Повторный intake владельца сохранил 56 raw и 56 COMP; исключённые источники не вернулись.
 - Итоговый dataset audit: PASS; orphan references: 0;
   broken internal links: 0.
 
@@ -103,7 +110,19 @@ viewBox, режиму, SSIM, eligibility и совпадению с graph mirror
 
 ## Публикация
 
-Публикация ожидает финальной локальной проверки и Pull Request в `master`. Remote changes ещё не объявляются выполненными.
+Основной PR: [https://github.com/indexdeny/svg_builder/pull/1](https://github.com/indexdeny/svg_builder/pull/1); интегрирован.
+
+Проверенный master после интеграции: `305affd05cd7e1bf0853ab75e7bc734226245998`.
+
+GitHub default branch: `master`; visibility: `public`.
+
+Основной PR интегрирован с проверкой ожидаемой head SHA. GitHub check runs для
+этого commit отсутствуют; перечисленные проверки выполнены в локальном чистом
+clone, новом venv и отдельном clone опубликованного master.
+
+Description: Р”РµС‚РµСЂРјРёРЅРёСЂРѕРІР°РЅРЅС‹Р№ РєРѕРЅРІРµР№РµСЂ СЂР°СЃС‚СЂ в†’ SVG в†’ 3MF: 56 СЂР°Р·СЂРµС€С‘РЅРЅС‹С… РёСЃС…РѕРґРЅРёРєРѕРІ, РїСЂРѕРІРµСЂСЏРµРјРѕРµ РїСЂРѕРёСЃС…РѕР¶РґРµРЅРёРµ Рё Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёР№ РєРѕРЅС‚СЂРѕР»СЊ РіРµРѕРјРµС‚СЂРёРё.
+
+Topics: 3mf, computational-geometry, image-processing, json-schema, python, quality-assurance, svg, vector-graphics, vtracer, workflow-automation.
 
 
 ## Ограничения
@@ -115,4 +134,3 @@ viewBox, режиму, SSIM, eligibility и совпадению с graph mirror
 юридической экспертизой. История Git не переписывалась; старая ветка dev
 и исторические коммиты могут содержать исключённые материалы.
 
-Blender Farm Pro в объём этого задания не входит и не изменялся.
